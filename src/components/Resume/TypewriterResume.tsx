@@ -1,134 +1,38 @@
-import React, { useState, useEffect } from 'react';
-
-interface TypewriterProps {
-  text: string;
-  delay?: number;
-  speed?: number;
-  onComplete?: () => void;
-}
-
-// Simple Typewriter Effect Component
-const Typewriter: React.FC<TypewriterProps> = ({ 
-  text, 
-  delay = 0, 
-  speed = 60, 
-  onComplete 
-}) => {
-  const [displayText, setDisplayText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [started, setStarted] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setStarted(true);
-    }, delay);
-
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  useEffect(() => {
-    if (!started || currentIndex >= text.length) {
-      if (currentIndex >= text.length && onComplete) {
-        onComplete();
-      }
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setDisplayText(text.slice(0, currentIndex + 1));
-      setCurrentIndex(currentIndex + 1);
-    }, speed);
-
-    return () => clearTimeout(timer);
-  }, [currentIndex, text, speed, started, onComplete]);
-
-  return <span>{displayText}</span>;
-};
+import React from 'react';
 
 // Header Component
 const Header: React.FC<{ personalInfo: any }> = ({ personalInfo }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
-  // Format phone number in vintage style
-  const formatVintagePhone = (modern: string) => {
-    // Convert modern phone to vintage format
-    return "MAyfair 4-7829"; // Keeping vintage style
+  const formatVintagePhone = () => {
+    return "MAyfair 4-7829";
   };
 
   return (
     <header className="header">
-      <h1 className="name">
-        <Typewriter 
-          text={personalInfo.name}
-          speed={80}
-          onComplete={() => setShowDetails(true)}
-        />
-      </h1>
-      {showDetails && (
-        <>
-          <div className="address">
-            <div>
-              <Typewriter 
-                text={personalInfo.location}
-                speed={50}
-                delay={200}
-              />
-            </div>
-            <div>
-              <Typewriter 
-                text={`Telephone: ${formatVintagePhone("")}`}
-                speed={50}
-                delay={600}
-              />
-            </div>
-          </div>
-          <div className="date">
-            <Typewriter 
-              text="March 15, 1947"
-              speed={60}
-              delay={1200}
-            />
-          </div>
-        </>
-      )}
+      <h1 className="name">{personalInfo.name}</h1>
+      <div className="address">
+        <div>{personalInfo.location}</div>
+        <div>{`Telephone: ${formatVintagePhone()}`}</div>
+      </div>
+      <div className="date">March 15, 1947</div>
     </header>
   );
 };
 
 // Section Component
-const Section: React.FC<{ 
-  title: string; 
+const Section: React.FC<{
+  title: string;
   children: React.ReactNode;
-  delay?: number;
-}> = ({ title, children, delay = 0 }) => {
-  const [showContent, setShowContent] = useState(false);
-
+}> = ({ title, children }) => {
   return (
     <section className="section">
-      <h2 className="section-title">
-        <Typewriter 
-          text={title}
-          speed={70}
-          delay={delay}
-          onComplete={() => setShowContent(true)}
-        />
-      </h2>
-      {showContent && (
-        <div className="section-content">
-          {children}
-        </div>
-      )}
+      <h2 className="section-title">{title}</h2>
+      <div className="section-content">{children}</div>
     </section>
   );
 };
 
 // Experience Item Component
-const ExperienceItem: React.FC<{ 
-  job: any; 
-  delay?: number;
-}> = ({ job, delay = 0 }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
+const ExperienceItem: React.FC<{ job: any }> = ({ job }) => {
   const formatDateRange = (startDate: Date, endDate: Date, current: boolean) => {
     const start = startDate.getFullYear();
     const end = current ? "Present" : endDate.getFullYear();
@@ -138,60 +42,28 @@ const ExperienceItem: React.FC<{
   return (
     <div className="experience-item">
       <div className="job-line">
-        <Typewriter 
-          text={`${job.position} - ${job.company} (${formatDateRange(job.startDate, job.endDate, job.current)})`}
-          speed={40}
-          delay={delay}
-          onComplete={() => setShowDetails(true)}
-        />
+        {`${job.position} - ${job.company} (${formatDateRange(job.startDate, job.endDate, job.current)})`}
       </div>
-      {showDetails && (
-        <div className="job-description">
-          {job.descriptionBulletPoints.map((desc: string, index: number) => (
-            <div key={index} className="description-line">
-              <Typewriter 
-                text={`    ${desc}`}
-                speed={35}
-                delay={300 + (index * 500)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="job-description">
+        {job.descriptionBulletPoints.map((desc: string, index: number) => (
+          <div key={index} className="description-line">{`    ${desc}`}</div>
+        ))}
+      </div>
     </div>
   );
 };
 
 // Projects Section Component
-const ProjectsSection: React.FC<{ 
-  projects: any[]; 
-  delay?: number;
-}> = ({ projects, delay = 0 }) => {
+const ProjectsSection: React.FC<{ projects: any[] }> = ({ projects }) => {
   return (
     <div className="projects">
       {projects.slice(0, 3).map((project, index) => (
         <div key={index} className="project-item">
-          <div className="project-title">
-            <Typewriter 
-              text={project.title}
-              speed={50}
-              delay={delay + (index * 800)}
-            />
-          </div>
-          <div className="project-description">
-            <Typewriter 
-              text={`    ${project.description}`}
-              speed={35}
-              delay={delay + (index * 800) + 200}
-            />
-          </div>
+          <div className="project-title">{project.title}</div>
+          <div className="project-description">{`    ${project.description}`}</div>
           {project.technologies.length > 0 && (
             <div className="project-tech">
-              <Typewriter 
-                text={`    Technologies: ${project.technologies.slice(0, 3).join(", ")}`}
-                speed={30}
-                delay={delay + (index * 800) + 500}
-              />
+              {`    Technologies: ${project.technologies.slice(0, 3).join(", ")}`}
             </div>
           )}
         </div>
@@ -200,11 +72,8 @@ const ProjectsSection: React.FC<{
   );
 };
 
-// Skills Component (adapted for vintage style)
-const SkillsSection: React.FC<{ 
-  skills: any[]; 
-  delay?: number;
-}> = ({ skills, delay = 0 }) => {
+// Skills Component
+const SkillsSection: React.FC<{ skills: any[] }> = ({ skills }) => {
   const topSkills = skills
     .sort((a, b) => b.level - a.level)
     .slice(0, 8)
@@ -212,11 +81,7 @@ const SkillsSection: React.FC<{
 
   return (
     <div className="skills">
-      <Typewriter 
-        text={`Proficient in: ${topSkills.join(", ")}`}
-        speed={40}
-        delay={delay}
-      />
+      {`Proficient in: ${topSkills.join(", ")}`}
     </div>
   );
 };
@@ -232,70 +97,50 @@ const TypewriterResume: React.FC<{ personalInfo: any }> = ({ personalInfo }) => 
           <div className="ink-spot spot-3"></div>
           <div className="ink-spot spot-4"></div>
         </div>
-        
+
         <Header personalInfo={personalInfo} />
-        
-        <Section title="OBJECTIVE" delay={2500}>
+
+        <Section title="OBJECTIVE">
           <div className="objective">
-            <Typewriter 
-              text={`To secure a position as Senior ${personalInfo.jobs[0]?.position || "Engineer"} where I may utilize my extensive experience in technology and innovation to contribute to industrial growth.`}
-              speed={35}
-              delay={200}
-            />
+            {`To secure a position as Senior ${personalInfo.jobs[0]?.position || "Engineer"} where I may utilize my extensive experience in technology and innovation to contribute to industrial growth.`}
           </div>
         </Section>
 
-        <Section title="EXPERIENCE" delay={4500}>
+        <Section title="EXPERIENCE">
           {personalInfo.jobs.slice(0, 3).map((job: any, index: number) => (
-            <ExperienceItem 
-              key={index}
-              job={job}
-              delay={index * 1500}
-            />
+            <ExperienceItem key={index} job={job} />
           ))}
         </Section>
 
-        <Section title="EDUCATION" delay={8000}>
+        <Section title="EDUCATION">
           <div className="education">
-            <Typewriter 
-              text={`${personalInfo.education.degree} ${personalInfo.education.major} - ${personalInfo.education.university}, ${personalInfo.education.graduationDate.getFullYear()}`}
-              speed={45}
-              delay={200}
-            />
+            {`${personalInfo.education.degree} ${personalInfo.education.major} - ${personalInfo.education.university}, ${personalInfo.education.graduationDate.getFullYear()}`}
             {personalInfo.education.gpa && (
               <div style={{ marginTop: '0.5rem' }}>
-                <Typewriter 
-                  text={`    Grade Point Average: ${personalInfo.education.gpa.toFixed(2)}`}
-                  speed={45}
-                  delay={800}
-                />
+                {`    Grade Point Average: ${personalInfo.education.gpa.toFixed(2)}`}
               </div>
             )}
           </div>
         </Section>
 
         {personalInfo.projects.length > 0 && (
-          <Section title="NOTABLE PROJECTS" delay={9500}>
-            <ProjectsSection projects={personalInfo.projects} delay={200} />
+          <Section title="NOTABLE PROJECTS">
+            <ProjectsSection projects={personalInfo.projects} />
           </Section>
         )}
 
         {personalInfo.skills.length > 0 && (
-          <Section title="TECHNICAL PROFICIENCIES" delay={11000}>
-            <SkillsSection skills={personalInfo.skills} delay={200} />
+          <Section title="TECHNICAL PROFICIENCIES">
+            <SkillsSection skills={personalInfo.skills} />
           </Section>
         )}
 
         {personalInfo.awards.length > 0 && (
-          <Section title="HONORS & RECOGNITION" delay={12500}>
+          <Section title="HONORS & RECOGNITION">
             <div className="awards">
               {personalInfo.awards.slice(0, 3).map((award: any, index: number) => (
                 <div key={index} className="award-item">
-                  <Typewriter 
-                    text={`${award.title} - ${award.organization}, ${typeof award.date === 'string' ? award.date : award.date.getFullYear()}`}
-                    speed={40}
-                    delay={200 + (index * 600)}
-                  />
+                  {`${award.title} - ${award.organization}, ${typeof award.date === 'string' ? award.date : award.date.getFullYear()}`}
                 </div>
               ))}
             </div>
@@ -328,7 +173,7 @@ const TypewriterResume: React.FC<{ personalInfo: any }> = ({ personalInfo }) => 
           left: 0;
           right: 0;
           bottom: 0;
-          background-image: 
+          background-image:
             repeating-linear-gradient(
               transparent,
               transparent 24px,
@@ -511,11 +356,11 @@ const TypewriterResume: React.FC<{ personalInfo: any }> = ({ personalInfo }) => 
           .container {
             padding: 1rem;
           }
-          
+
           .paper {
             padding: 2rem 1.5rem;
           }
-          
+
           .name {
             font-size: 20px;
           }

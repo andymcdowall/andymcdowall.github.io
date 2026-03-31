@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Github,
   Linkedin,
@@ -23,12 +23,7 @@ const TronResume: React.FC<{ personalInfo: PersonalInfo }> = ({
   personalInfo,
 }) => {
   const [activeSection, setActiveSection] = useState("about");
-  const [isVisible, setIsVisible] = useState(false);
   const isLargeScreen = useWindowAtLeast(600)
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-950 to-black text-white relative overflow-hidden">
@@ -127,9 +122,7 @@ const TronResume: React.FC<{ personalInfo: PersonalInfo }> = ({
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Header Section */}
         <div
-          className={`${sectionClasses} text-center transform transition-all duration-1000 hover:shadow-cyan-300/40 ${
-            isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
-          }`}
+          className={`${sectionClasses} text-center hover:shadow-cyan-300/40 transition-all duration-1000`}
         >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-4 font-mono hover:from-cyan-200 hover:to-blue-300 transition-all duration-300">
             {personalInfo.name}

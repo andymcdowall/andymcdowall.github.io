@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, useAnimation, useInView, useMotionValue, useTransform } from 'framer-motion';
+import React, { useState, useRef } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Github, Linkedin, MapPin, Briefcase, Award, Code, GraduationCap, ChevronsDown } from 'lucide-react';
 import type { PersonalInfo, WorkExperience, Project, Skill } from '../types';
 
@@ -121,36 +121,9 @@ const GlassCard = ({ children, className = '' }: { children: React.ReactNode; cl
 };
 
 
-/**
- * A wrapper for content sections that animates them into view on scroll.
- */
-const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount: 0.2 });
-    const controls = useAnimation();
-
-    useEffect(() => {
-        if (isInView) {
-            controls.start("visible");
-        }
-    }, [isInView, controls]);
-
-    return (
-        <motion.section
-            ref={ref}
-            variants={{
-                hidden: { opacity: 0.001, y: 75, scale: 0.95 },
-                visible: { opacity: 1, y: 0, scale: 1 },
-            }}
-            initial="hidden"
-            animate={controls}
-            transition={{ duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] }}
-            className={className}
-        >
-            {children}
-        </motion.section>
-    );
-};
+const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+    <section className={className}>{children}</section>
+);
 
 //==============================================================================
 // RESUME-SPECIFIC COMPONENTS
@@ -243,12 +216,9 @@ const Skills = ({ skills }: { skills: Skill[] }) => {
                     <div key={skill.name}>
                         <p className="text-white mb-2">{skill.name}</p>
                         <div className="w-full bg-white/10 rounded-full h-3">
-                            <motion.div 
+                            <div
                                 className="bg-gradient-to-r from-orange-400 to-amber-300 h-3 rounded-full shadow-[0_0_10px_theme(colors.orange.400),0_0_4px_theme(colors.amber.500)]"
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${skill.level * 100}%`}}
-                                viewport={{ once: true, amount: 0.8 }}
-                                transition={{ duration: 1.2, ease: [0.2, 0.65, 0.3, 0.9] }}
+                                style={{ width: `${skill.level * 100}%` }}
                             />
                         </div>
                     </div>
@@ -304,12 +274,7 @@ const FloatingDock = () => {
     }
 
     return (
-        <motion.div 
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1.5, duration: 0.8, ease: "easeOut" }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-        >
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
             <GlassCard className="p-2">
                 <div className="flex items-center gap-2">
                     {dockItems.map(item => (
@@ -325,7 +290,7 @@ const FloatingDock = () => {
                     ))}
                 </div>
             </GlassCard>
-        </motion.div>
+        </div>
     );
 };
 

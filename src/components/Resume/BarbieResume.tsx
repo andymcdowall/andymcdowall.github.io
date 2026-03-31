@@ -113,7 +113,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
       <div className="container mx-auto px-6 py-12 relative z-10">
         {/* Header Section */}
-        <div className="text-center mb-16 animate-fade-in">
+        <div className="text-center mb-16">
           <div className="relative inline-block">
             <h1 className="text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-pink-800 mb-4 drop-shadow-lg animate-pulse">
               {safePersonalInfo.name}
@@ -172,7 +172,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
         <div className="max-w-6xl mx-auto">
           {/* About Section */}
           {activeSection === 'about' && (
-            <div className="grid md:grid-cols-2 gap-8 animate-fade-in">
+            <div className="grid md:grid-cols-2 gap-8 ">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Award className="text-pink-600 w-8 h-8" />
@@ -220,7 +220,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Experience Section */}
           {activeSection === 'experience' && (
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-8 ">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Briefcase className="text-pink-600 w-8 h-8" />
@@ -307,7 +307,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Projects Section */}
           {activeSection === 'projects' && (
-            <div className="animate-fade-in">
+            <div className="">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Sparkles className="text-pink-600 w-8 h-8" />
@@ -347,7 +347,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Skills Section */}
           {activeSection === 'skills' && (
-            <div className="animate-fade-in">
+            <div className="">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Star className="text-pink-600 w-8 h-8 fill-current" />
@@ -364,16 +364,6 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out;
-        }
-      `}</style>
     </div>
   );
 };
