@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 // import './App.css'
 import BarbieResume from './components/Resume/BarbieResume'
 import HorrorPosterResume from './components/Resume/HorrorPosterResume'
@@ -23,20 +23,20 @@ const App = () => {
   const [rouletteKey, setRouletteKey] = useState(0);
   const [showButton, setShowButton] = useState(false);
 
-  const triggerEverything = () => {
+  const triggerEverything = useCallback(() => {
     setShowButton(true);
     setRouletteKey(prev => prev + 1);
-  };
+  }, []);
 
   // stillComponents index 1 is CliResume — hide button if roulette lands there
   const handleSettle = useCallback((index: number) => setShowButton(index !== 1), []);
 
-  const stillComponents = [
+  const stillComponents = useMemo(() => [
     <TronResume personalInfo={andyPersonalInfo} />, // 10/10, very good
     <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />, // 5/5, amazing interactivity
-  ];
+  ], [triggerEverything]);
 
-  const componentsToSpin = [
+  const componentsToSpin = useMemo(() => [
     <Y2KResume personalInfo={andyPersonalInfo} />, // 4/5
     <TypewriterResume personalInfo={andyPersonalInfo} />, // 1/5
     <BarbieResume personalInfo={andyPersonalInfo} />, // 3/5
@@ -48,7 +48,7 @@ const App = () => {
     <GlassMorphismResume personalInfo={andyPersonalInfo} />, // 4/5, pretty neat
     <PostcardResume personalInfo={andyPersonalInfo} />, // 3/5, mid
     ...stillComponents
-  ];
+  ], [stillComponents]);
 
   return (
     // Main container is now relative and takes the full screen
