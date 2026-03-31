@@ -136,7 +136,7 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     const [cmd, ...args] = command.toLowerCase().split(" ");
     switch (cmd) {
       case "help":
-        return `Available commands:\n\n${commands.slice(0, -1).join("\n")}\neverything         # ⚠ flash warning`;
+        return `Available commands:\n\n${commands.slice(0, -1).join("\n")}\neverything         # flash warning`;
       case "about":
         return `${personalInfo.name}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type 'help' to see all available commands.`;
       case "skills":
