@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 // import './App.css'
 import BarbieResume from './components/Resume/BarbieResume'
 import HorrorPosterResume from './components/Resume/HorrorPosterResume'
@@ -14,15 +14,22 @@ import GlassMorphismResume from './components/Resume/GlassMorphismResume'
 import PostcardResume from './components/Resume/PostcardResume'
 import TronResume from './components/TronTheme/TronResume'
 import ComponentRoulette from './components/ComponentRoulette'
-// import EverythingEverywhereButton from './components/EverythingEverywhereButton'
+import EverythingEverywhereButton from './components/EverythingEverywhereButton'
 
 /**
  * An example App component to demonstrate the ComponentRoulette in fullscreen.
  */
 const App = () => {
   const [rouletteKey, setRouletteKey] = useState(0);
+  const [showButton, setShowButton] = useState(false);
 
-  const triggerEverything = () => setRouletteKey(prev => prev + 1);
+  const triggerEverything = () => {
+    setShowButton(true);
+    setRouletteKey(prev => prev + 1);
+  };
+
+  // stillComponents index 1 is CliResume — hide button if roulette lands there
+  const handleSettle = useCallback((index: number) => setShowButton(index !== 1), []);
 
   const stillComponents = [
     <TronResume personalInfo={andyPersonalInfo} />, // 10/10, very good
@@ -54,7 +61,11 @@ const App = () => {
           stillComponents={stillComponents}
           spinningComponents={componentsToSpin}
           spinDuration={4000}
+          onSettle={handleSettle}
         />
+      )}
+      {showButton && (
+        <EverythingEverywhereButton onClick={triggerEverything} />
       )}
     </div>
   );

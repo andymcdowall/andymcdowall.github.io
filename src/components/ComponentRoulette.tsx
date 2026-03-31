@@ -10,6 +10,8 @@ interface ComponentRouletteProps {
   spinDuration?: number;
   /** The index of the component to land on. If not provided, a random one will be chosen. */
   finalIndex?: number;
+  /** Called with the stillComponents index when the spin settles. */
+  onSettle?: (index: number) => void;
 }
 
 /**
@@ -21,9 +23,10 @@ export const ComponentRoulette: React.FC<ComponentRouletteProps> = ({
   spinningComponents,
   spinDuration = 6000, // Default spin time: 4 seconds
   finalIndex,
+  onSettle,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currSafeIndex, setCurrSafeIndex] = useState(Math.floor(Math.random() * stillComponents.length));
+  const [currSafeIndex] = useState(Math.floor(Math.random() * stillComponents.length));
   const [isSpinning, setIsSpinning] = useState(false);
   const [isFading, setIsFading] = useState(false);
 
@@ -66,6 +69,7 @@ export const ComponentRoulette: React.FC<ComponentRouletteProps> = ({
         setCurrentIndex(targetIndex);
         setIsSpinning(false);
         setIsFading(false);
+        onSettle?.(currSafeIndex);
       }, 500);
     }, spinDuration);
 
@@ -73,7 +77,7 @@ export const ComponentRoulette: React.FC<ComponentRouletteProps> = ({
       clearTimeout(spinTimeoutId);
       clearTimeout(stopTimeoutId);
     };
-  }, [stillComponents, spinningComponents, spinDuration, finalIndex]);
+  }, [stillComponents, spinningComponents, spinDuration, finalIndex, currSafeIndex, onSettle]);
 
   if (!spinningComponents || spinningComponents.length === 0) {
     return null;
