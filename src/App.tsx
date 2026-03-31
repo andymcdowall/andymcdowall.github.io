@@ -14,7 +14,7 @@ import GlassMorphismResume from './components/Resume/GlassMorphismResume'
 import PostcardResume from './components/Resume/PostcardResume'
 import TronResume from './components/TronTheme/TronResume'
 import ComponentRoulette from './components/ComponentRoulette'
-import EverythingEverywhereButton from './components/EverythingEverywhereButton'
+// import EverythingEverywhereButton from './components/EverythingEverywhereButton'
 
 /**
  * An example App component to demonstrate the ComponentRoulette in fullscreen.
@@ -22,9 +22,11 @@ import EverythingEverywhereButton from './components/EverythingEverywhereButton'
 const App = () => {
   const [rouletteKey, setRouletteKey] = useState(0);
 
-const stillComponents = [
+  const triggerEverything = () => setRouletteKey(prev => prev + 1);
+
+  const stillComponents = [
     <TronResume personalInfo={andyPersonalInfo} />, // 10/10, very good
-    <CliResume personalInfo={andyPersonalInfo} />, // 5/5, amazing interactivity
+    <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />, // 5/5, amazing interactivity
   ];
 
   const componentsToSpin = [
@@ -44,16 +46,16 @@ const stillComponents = [
   return (
     // Main container is now relative and takes the full screen
     <div className="relative h-screen w-screen bg-gray-900">
-      <ComponentRoulette
-        key={rouletteKey}
-        stillComponents={stillComponents}
-        spinningComponents={componentsToSpin}
-        spinDuration={4000}
-      /> 
-      
-      <EverythingEverywhereButton
-        onClick={() => setRouletteKey(prev => prev + 1)}
-      />
+      {rouletteKey === 0 ? (
+        <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />
+      ) : (
+        <ComponentRoulette
+          key={rouletteKey}
+          stillComponents={stillComponents}
+          spinningComponents={componentsToSpin}
+          spinDuration={4000}
+        />
+      )}
     </div>
   );
 };
