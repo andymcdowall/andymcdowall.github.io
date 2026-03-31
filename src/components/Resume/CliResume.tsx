@@ -52,7 +52,7 @@ const InputLine = ({
 
 // --- THE MAIN TERMINAL COMPONENT ---
 
-const Terminal = ({ personalInfo } : {personalInfo: PersonalInfo}) => {
+const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, onEverything?: () => void}) => {
   // --- STATE MANAGEMENT ---
   const [input, setInput] = useState("");
   const [history, setHistory] = useState([]);
@@ -76,6 +76,7 @@ const Terminal = ({ personalInfo } : {personalInfo: PersonalInfo}) => {
     "awards",
     "all",
     "clear",
+    "everything",
   ];
 
   // --- UTILITY & FORMATTING ---
@@ -135,7 +136,7 @@ const Terminal = ({ personalInfo } : {personalInfo: PersonalInfo}) => {
     const [cmd, ...args] = command.toLowerCase().split(" ");
     switch (cmd) {
       case "help":
-        return `Available commands:\n\n${commands.join("\n")}`;
+        return `Available commands:\n\n${commands.slice(0, -1).join("\n")}\neverything         # flash warning`;
       case "about":
         return `${personalInfo.name}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type 'help' to see all available commands.`;
       case "skills":
@@ -178,6 +179,9 @@ const Terminal = ({ personalInfo } : {personalInfo: PersonalInfo}) => {
       case "clear":
         setHistory([]);
         return "";
+      case "everything":
+        onEverything?.();
+        return "Initiating everything, everywhere, all at once...\n⚠ Flash warning: contains flashing effects.";
       default:
         return `command not found: ${command}\nType 'help' for a list of available commands.`;
     }

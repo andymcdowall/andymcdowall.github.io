@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 // import './App.css'
 import BarbieResume from './components/Resume/BarbieResume'
 import HorrorPosterResume from './components/Resume/HorrorPosterResume'
@@ -21,13 +21,22 @@ import EverythingEverywhereButton from './components/EverythingEverywhereButton'
  */
 const App = () => {
   const [rouletteKey, setRouletteKey] = useState(0);
+  const [showButton, setShowButton] = useState(false);
 
-const stillComponents = [
+  const triggerEverything = useCallback(() => {
+    setShowButton(true);
+    setRouletteKey(prev => prev + 1);
+  }, []);
+
+  // stillComponents index 1 is CliResume — hide button if roulette lands there
+  const handleSettle = useCallback((index: number) => setShowButton(index !== 1), []);
+
+  const stillComponents = useMemo(() => [
     <TronResume personalInfo={andyPersonalInfo} />, // 10/10, very good
-    <CliResume personalInfo={andyPersonalInfo} />, // 5/5, amazing interactivity
-  ];
+    <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />, // 5/5, amazing interactivity
+  ], [triggerEverything]);
 
-  const componentsToSpin = [
+  const componentsToSpin = useMemo(() => [
     <Y2KResume personalInfo={andyPersonalInfo} />, // 4/5
     <TypewriterResume personalInfo={andyPersonalInfo} />, // 1/5
     <BarbieResume personalInfo={andyPersonalInfo} />, // 3/5
@@ -39,21 +48,25 @@ const stillComponents = [
     <GlassMorphismResume personalInfo={andyPersonalInfo} />, // 4/5, pretty neat
     <PostcardResume personalInfo={andyPersonalInfo} />, // 3/5, mid
     ...stillComponents
-  ];
+  ], [stillComponents]);
 
   return (
     // Main container is now relative and takes the full screen
     <div className="relative h-screen w-screen bg-gray-900">
-      <ComponentRoulette
-        key={rouletteKey}
-        stillComponents={stillComponents}
-        spinningComponents={componentsToSpin}
-        spinDuration={4000}
-      /> 
-      
-      <EverythingEverywhereButton
-        onClick={() => setRouletteKey(prev => prev + 1)}
-      />
+      {rouletteKey === 0 ? (
+        <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />
+      ) : (
+        <ComponentRoulette
+          key={rouletteKey}
+          stillComponents={stillComponents}
+          spinningComponents={componentsToSpin}
+          spinDuration={4000}
+          onSettle={handleSettle}
+        />
+      )}
+      {showButton && (
+        <EverythingEverywhereButton onClick={triggerEverything} />
+      )}
     </div>
   );
 };
