@@ -85,6 +85,9 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
   };
 
   // Formatters for different resume sections to keep command logic clean
+  const hangingIndent = (text: string, depth: number) =>
+    `<span style="display:block;padding-left:${depth}ch;text-indent:-${depth}ch">${text}</span>`;
+
   const formatters = {
     date: (date) =>
       new Date(date).toLocaleDateString("en-US", {
@@ -97,12 +100,13 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
       })</span> <span class="text-gray-500">| ${formatters.date(exp.startDate)} - ${
         exp.current ? "Present" : formatters.date(exp.endDate)
       }</span>\n` +
-      exp.descriptionBulletPoints.map((p) => `<span style="display:block;padding-left:4ch;text-indent:-4ch">  - ${p}</span>`).join("") +
+      exp.descriptionBulletPoints.map((p) => hangingIndent(`  - ${p}`, 4)).join("") +
       `\n<span class="text-gray-500">  [Technologies: ${exp.technologies.join(", ")}]</span>`,
     project: (proj) =>
-      `\n<span class="text-cyan-300">&gt; ${proj.title}</span>\n<span style="display:block;padding-left:2ch;text-indent:-2ch">  ${proj.description}</span>` +
-      `<span class="text-gray-500" style="display:block;padding-left:2ch;text-indent:-2ch">  [Technologies: ${proj.technologies.join(", ")}]</span>` +
-      `<span style="display:block;padding-left:2ch;text-indent:-2ch">  <span class="text-gray-500">Link:</span> <a href="${proj.link}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${proj.link}</a></span>`,
+      `\n<span class="text-cyan-300">&gt; ${proj.title}</span>\n` +
+      hangingIndent(`  ${proj.description}`, 2) +
+      hangingIndent(`  <span class="text-gray-500">[Technologies: ${proj.technologies.join(", ")}]</span>`, 2) +
+      hangingIndent(`  <span class="text-gray-500">Link:</span> <a href="${encodeURI(proj.link)}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${proj.link}</a>`, 2),
     education: (edu) =>
       `<span class="text-cyan-300">&gt; ${edu.degree} in ${edu.major}</span>\n` +
       `  ${edu.university} (${edu.location}) <span class="text-gray-500">| ${formatters.date(edu.graduationDate)}</span>\n` +
@@ -121,11 +125,12 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
       }</span> <span class="text-gray-500">| ${formatters.date(vol.startDate)} - ${
         vol.current ? "Present" : formatters.date(vol.endDate)
       }</span>\n` +
-      vol.descriptionBulletPoints.map((p) => `<span style="display:block;padding-left:4ch;text-indent:-4ch">  - ${p}</span>`).join(""),
+      vol.descriptionBulletPoints.map((p) => hangingIndent(`  - ${p}`, 4)).join(""),
     award: (award) => {
       const dateStr =
         award.date instanceof Date ? formatters.date(award.date) : award.date;
-      return `\n<span class="text-cyan-300">&gt; ${award.title}</span> <span class="text-gray-500">- ${award.organization} (${dateStr})</span><span style="display:block;padding-left:2ch;text-indent:-2ch">  ${award.description}</span>`;
+      return `\n<span class="text-cyan-300">&gt; ${award.title}</span> <span class="text-gray-500">- ${award.organization} (${dateStr})</span>` +
+        hangingIndent(`  ${award.description}`, 2);
     },
   };
 
