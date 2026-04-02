@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## General
+- Be sure to always make changes to https://github.com/andymcdowall/andymcdowall.github.io, not some other repo
+- Be sure to check if you're in a worktree. If you are, git commands work as normal. Do not use any `git -C`
+- Prefer Github MCP over gh cli.
+
 ## Commands
 
 ```bash

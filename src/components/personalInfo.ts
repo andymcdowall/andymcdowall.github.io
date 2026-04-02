@@ -12,10 +12,10 @@ export const andyPersonalInfo: PersonalInfo = {
       position: "Software Developer",
       startDate: new Date("2024-07-01"),
       endDate: new Date("2025-07-01"),
-      current: true,
+      current: false,
       location: "Irving, TX",
       descriptionBulletPoints: [
-        "Developed full-stack customized HCM solutions , collaborating with cross-functional teams to deliver client-spcific reports and integrate with third party systems.",
+        "Developed full-stack customized HCM solutions, collaborating with cross-functional teams to deliver client-spcific reports and integrate with third party systems.",
         "Managed multiple conceurrent development projects while maintaining clear communication with clients, vendors, and internal stakeholders to ensure the spirit, as well as the letter, of the requirements were met.",
         "Led development of integrations connecting client systems with third-party vendors, ensuring data accuracy and maintaining clear documentation throughout project lifecycle.",
       ],
@@ -27,12 +27,12 @@ export const andyPersonalInfo: PersonalInfo = {
       startDate: new Date("2023-09-01"),
       endDate: new Date("2023-08-01"),
       current: false,
-      location: "San Francisco, CA",
+      location: "Denton, TX",
       descriptionBulletPoints: [
         "Tailored personalized tutoring plans for each student, adapting teaching styles to match their unique learning preferences and pace.",
         "Supplemented communication and explanation using effective verbal skills, diagrams, analogies, and examples.",
       ],
-      technologies: ["Data structures and algorithms", "Interpesonal communication"],
+      technologies: ["Data structures and algorithms", "Interpersonal communication"],
     },
     {
       company: "Triumph Financial (now Triumph)",
