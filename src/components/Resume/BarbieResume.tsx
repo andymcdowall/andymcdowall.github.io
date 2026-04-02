@@ -172,7 +172,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
         <div className="max-w-6xl mx-auto">
           {/* About Section */}
           {activeSection === 'about' && (
-            <div className="grid md:grid-cols-2 gap-8 ">
+            <div className="grid md:grid-cols-2 gap-8">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Award className="text-pink-600 w-8 h-8" />
@@ -220,7 +220,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Experience Section */}
           {activeSection === 'experience' && (
-            <div className="space-y-8 ">
+            <div className="space-y-8">
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Briefcase className="text-pink-600 w-8 h-8" />
@@ -307,7 +307,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Projects Section */}
           {activeSection === 'projects' && (
-            <div className="">
+            <div>
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Sparkles className="text-pink-600 w-8 h-8" />
@@ -347,7 +347,7 @@ const BarbieResume: React.FC<BarbieResumeProps> = ({ personalInfo }) => {
 
           {/* Skills Section */}
           {activeSection === 'skills' && (
-            <div className="">
+            <div>
               <SectionCard>
                 <div className="flex items-center gap-3 mb-6">
                   <Star className="text-pink-600 w-8 h-8 fill-current" />

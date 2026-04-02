@@ -121,17 +121,13 @@ const GlassCard = ({ children, className = '' }: { children: React.ReactNode; cl
 };
 
 
-const AnimatedSection = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
-    <section className={className}>{children}</section>
-);
-
 //==============================================================================
 // RESUME-SPECIFIC COMPONENTS
 //==============================================================================
 
 const Header = ({ name, location, github, linkedin }: Pick<PersonalInfo, 'name' | 'location' | 'github' | 'linkedin'>) => {
   return (
-    <AnimatedSection>
+    <section>
         <GlassCard className="p-6 md:p-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div>
@@ -147,19 +143,19 @@ const Header = ({ name, location, github, linkedin }: Pick<PersonalInfo, 'name' 
                 </div>
             </div>
         </GlassCard>
-    </AnimatedSection>
+    </section>
   );
 };
 
 const Section = ({ title, icon, children, id }: { title: string; icon: React.ReactNode; children: React.ReactNode; id: string }) => {
   return (
-    <AnimatedSection className="mt-12" id={id}>
+    <section className="mt-12" id={id}>
         <div className="flex items-center gap-3 mb-6">
             <div className="text-orange-300/80 drop-shadow-lg">{icon}</div>
             <h2 className="text-3xl font-bold text-white tracking-wide">{title}</h2>
         </div>
         {children}
-    </AnimatedSection>
+    </section>
   );
 };
 
