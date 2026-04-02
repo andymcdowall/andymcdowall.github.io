@@ -92,24 +92,23 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
         year: "numeric",
       }),
     experience: (exp) =>
-      `\n&gt; ${exp.position} @ ${exp.company} (${
+      `\n<span class="text-cyan-300">&gt; ${exp.position} @ ${exp.company} (${
         exp.location
-      })\n  ${formatters.date(exp.startDate)} - ${
+      })</span> <span class="text-gray-500">| ${formatters.date(exp.startDate)} - ${
         exp.current ? "Present" : formatters.date(exp.endDate)
-      }\n` +
-      exp.descriptionBulletPoints.map((p) => `  - ${p}`).join("\n") +
-      `\n  [Technologies: ${exp.technologies.join(", ")}]`,
+      }</span>\n` +
+      exp.descriptionBulletPoints.map((p) => `<span style="display:block;padding-left:4ch;text-indent:-4ch">  - ${p}</span>`).join("") +
+      `\n<span class="text-gray-500">  [Technologies: ${exp.technologies.join(", ")}]</span>`,
     project: (proj) =>
-      `\n&gt; ${proj.title}\n  ${proj.description}\n` +
-      `  [Technologies: ${proj.technologies.join(", ")}]\n` +
-      `  Link: <a href="${proj.link}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${proj.link}</a>`,
+      `\n<span class="text-cyan-300">&gt; ${proj.title}</span>\n<span style="display:block;padding-left:2ch;text-indent:-2ch">  ${proj.description}</span>` +
+      `<span class="text-gray-500" style="display:block;padding-left:2ch;text-indent:-2ch">  [Technologies: ${proj.technologies.join(", ")}]</span>` +
+      `<span style="display:block;padding-left:2ch;text-indent:-2ch">  <span class="text-gray-500">Link:</span> <a href="${proj.link}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${proj.link}</a></span>`,
     education: (edu) =>
-      `&gt; ${edu.degree} in ${edu.major}\n` +
-      `  ${edu.university} (${edu.location})\n` +
-      `  Graduated: ${formatters.date(edu.graduationDate)}\n` +
+      `<span class="text-cyan-300">&gt; ${edu.degree} in ${edu.major}</span>\n` +
+      `  ${edu.university} (${edu.location}) <span class="text-gray-500">| ${formatters.date(edu.graduationDate)}</span>\n` +
       (edu.minor ? `  Minor: ${edu.minor}\n` : "") +
       (edu.certificate ? `  Certificate: ${edu.certificate}\n` : "") +
-      `  GPA: ${edu.gpa.toFixed(2)}`,
+      `  <span class="text-green-400">GPA: ${edu.gpa.toFixed(2)}</span>\n`,
     skill: (skill) => {
       const bar =
         "█".repeat(Math.round(skill.level * 10)) +
@@ -117,17 +116,16 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
       return `${skill.name.padEnd(20, " ")} [${bar}]`;
     },
     volunteer: (vol) =>
-      `\n&gt; ${vol.position} @ ${vol.organization} ${
+      `\n<span class="text-cyan-300">&gt; ${vol.position} @ ${vol.organization} ${
         vol.suborganization ? `(${vol.suborganization})` : ""
-      }\n` +
-      `  ${formatters.date(vol.startDate)} - ${
+      }</span> <span class="text-gray-500">| ${formatters.date(vol.startDate)} - ${
         vol.current ? "Present" : formatters.date(vol.endDate)
-      }\n` +
-      vol.descriptionBulletPoints.map((p) => `  - ${p}`).join("\n"),
+      }</span>\n` +
+      vol.descriptionBulletPoints.map((p) => `<span style="display:block;padding-left:4ch;text-indent:-4ch">  - ${p}</span>`).join(""),
     award: (award) => {
       const dateStr =
         award.date instanceof Date ? formatters.date(award.date) : award.date;
-      return `\n&gt; ${award.title} - ${award.organization} (${dateStr})\n  ${award.description}`;
+      return `\n<span class="text-cyan-300">&gt; ${award.title}</span> <span class="text-gray-500">- ${award.organization} (${dateStr})</span><span style="display:block;padding-left:2ch;text-indent:-2ch">  ${award.description}</span>`;
     },
   };
 
@@ -137,34 +135,45 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     switch (cmd) {
       case "help":
         return `Available commands:\n\n${commands.slice(0, -1).join("\n")}\neverything         # flash warning`;
-      case "about":
-        return `${personalInfo.name}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type 'help' to see all available commands.`;
+      case "about": {
+        const ascii = [
+          "                     _         __  __      _____                     _ _ ",
+          "     /\\             | |       |  \\/  |    |  __ \\                   | | |",
+          "    /  \\   _ __   __| |_   _  | \\  / | ___| |  | | _____      ____ _| | |",
+          "   / /\\ \\ | '_ \\ / _` | | | | | |\\/| |/ __| |  | |/ _ \\ \\ /\\ / / _` | | |",
+          "  / ____ \\| | | | (_| | |_| | | |  | | (__| |__| | (_) \\ V  V / (_| | | |",
+          " /_/    \\_\\_| |_|\\__,_|\\__, | |_|  |_|\\___|_____/ \\___/ \\_/\\_/ \\__,_|_|_|",
+          "                        __/ |                                            ",
+          "                       |___/                                             ",
+        ].join("\n");
+        return `${ascii}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type 'help' to see all available commands.\n`;
+      }
       case "skills":
-        return `--- Skills ---\n\n${personalInfo.skills
+        return `\n<span class="text-white">=== Skills ===</span>\n\n${personalInfo.skills
           .map(formatters.skill)
-          .join("\n")}`;
+          .join("\n")}\n`;
       case "experience":
-        return `--- Work Experience ---\n${personalInfo.jobs
+        return `\n<span class="text-white">=== Work Experience ===</span>\n${personalInfo.jobs
           .map(formatters.experience)
-          .join("\n")}`;
+          .join("\n")}\n`;
       case "projects":
-        return `--- Projects ---\n${personalInfo.projects
+        return `\n<span class="text-white">=== Projects ===</span>\n${personalInfo.projects
           .map(formatters.project)
-          .join("\n")}`;
+          .join("")}`;
       case "education":
-        return `--- Education ---\n\n${formatters.education(
+        return `\n<span class="text-white">=== Education ===</span>\n\n${formatters.education(
           personalInfo.education
         )}`;
       case "contact":
-        return `--- Contact ---\n\nGitHub:   <a href="${personalInfo.github}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${personalInfo.github}</a>\nLinkedIn: <a href="${personalInfo.linkedin}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${personalInfo.linkedin}</a>`;
+        return `\n<span class="text-white">=== Contact ===</span>\n\nGitHub:   <a href="${personalInfo.github}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${personalInfo.github}</a>\nLinkedIn: <a href="${personalInfo.linkedin}" target="_blank" rel="noopener noreferrer" class="text-blue-400 underline hover:text-blue-300">${personalInfo.linkedin}</a>`;
       case "volunteer":
-        return `--- Volunteer Experience ---\n${personalInfo.volunteer
+        return `\n<span class="text-white">=== Volunteer Experience ===</span>\n${personalInfo.volunteer
           .map(formatters.volunteer)
-          .join("\n")}`;
+          .join("")}`;
       case "awards":
-        return `--- Awards ---\n${personalInfo.awards
+        return `\n<span class="text-white">=== Awards ===</span>\n${personalInfo.awards
           .map(formatters.award)
-          .join("\n")}`;
+          .join("")}`;
       case "all":
         return [
           getCommandOutput("about"),
@@ -175,7 +184,7 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
           getCommandOutput("volunteer"),
           getCommandOutput("awards"),
           getCommandOutput("contact"),
-        ].join("\n\n" + "-".repeat(40) + "\n\n");
+        ].join("");
       case "clear":
         setHistory([]);
         return "";
@@ -248,7 +257,7 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     setHistory([
       {
         command: "",
-        output: `Welcome to the interactive terminal resume of ${personalInfo.name}.\n\nType 'help' to get started.\n`,
+        output: getCommandOutput("about"),
       },
     ]);
   }, [personalInfo.name]);
