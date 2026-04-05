@@ -151,6 +151,36 @@ through years of commitment, culminating in a successful community service proje
   ],
   projects: [
     {
+      title: "Personal Website", 
+      description:
+        "This website! Built with React and TypeScript, hosted on Vercel. It serves as a portfolio and a platform to share my projects and experiences.",
+      technologies: ["React", "TypeScript", "Vercel"],
+      link: "https://www.andymcdowall.com",
+      image: "",
+      started: new Date("2025-06-01"),
+      isUnderDevelopment: true
+    },
+    {
+      title: "Recipe Shopper",
+      description:
+        "A web application that generates a shopping list based on user-selected recipes. Built with React and Node.js, it allows users to easily plan meals and shop for ingredients.",
+      technologies: ["React", "Node.js", "Express", "MongoDB"],
+      link: "https://github.com/andymcdowall/reciper-shopper",
+      image: "",
+      started: new Date("2026-03-10"),
+      isUnderDevelopment: true
+    },
+    {
+      title: "Mike Fountain Comedy Website",
+      description:
+        "A website for comedian Mike Fountain, featuring his tour dates, videos, and contact information. WIP. Built with React and Formspree.",
+      technologies: ["React", "Formspree", "Vercel"],
+      link: "https://mikefountaincomedy.vercel.app",
+      image: "",
+      started: new Date("2026-04-01"),
+      isUnderDevelopment: true
+    },
+    {
       title: "Fossil",
       description:
         "A client for the Mastodon microblogging platform. Won Capstone People's Choice - Computer Science award at UNT.",
