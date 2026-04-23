@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 // import './App.css'
 import BarbieResume from './components/Resume/BarbieResume'
 import HorrorPosterResume from './components/Resume/HorrorPosterResume'
@@ -16,25 +16,76 @@ import TronResume from './components/TronTheme/TronResume'
 import ComponentRoulette from './components/ComponentRoulette'
 import EverythingEverywhereButton from './components/EverythingEverywhereButton'
 
+// Index into stillComponents for the `ui` command in CliResume. 0 = TronResume.
+const PREFERRED_UI_INDEX = 0;
+
+// Names for each entry in componentsToSpin, in order.
+const RESUME_NAMES = [
+  "Y2K",
+  "Typewriter",
+  "Barbie",
+  "Neon Tokyo",
+  "Horror Poster",
+  "Macintosh",
+  "Retro Game",
+  "Noir",
+  "Glass Morphism",
+  "Postcard",
+  "Tron",
+  "CLI",
+];
+
 /**
  * An example App component to demonstrate the ComponentRoulette in fullscreen.
  */
 const App = () => {
   const [rouletteKey, setRouletteKey] = useState(0);
   const [showButton, setShowButton] = useState(false);
+  const [showUI, setShowUI] = useState(false);
+  const [directIndex, setDirectIndex] = useState<number | null>(null);
 
   const triggerEverything = useCallback(() => {
+    setShowUI(false);
+    setDirectIndex(null);
     setShowButton(true);
     setRouletteKey(prev => prev + 1);
   }, []);
+
+  const switchToUI = useCallback(() => {
+    setDirectIndex(null);
+    setShowUI(true);
+    setShowButton(true);
+  }, []);
+
+  const showResume = useCallback((n: number) => {
+    setShowUI(false);
+    setDirectIndex(n);
+    setShowButton(true);
+  }, []);
+
+  const isOnTerminal = !showUI && directIndex === null && rouletteKey === 0;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '~' && !isOnTerminal) {
+        e.preventDefault();
+        setShowUI(false);
+        setDirectIndex(null);
+        setRouletteKey(0);
+        setShowButton(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOnTerminal]);
 
   // stillComponents index 1 is CliResume — hide button if roulette lands there
   const handleSettle = useCallback((index: number) => setShowButton(index !== 1), []);
 
   const stillComponents = useMemo(() => [
     <TronResume personalInfo={andyPersonalInfo} />, // 10/10, very good
-    <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />, // 5/5, amazing interactivity
-  ], [triggerEverything]);
+    <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} onSwitchToUI={switchToUI} onShowResume={showResume} resumeNames={RESUME_NAMES} />, // 5/5, amazing interactivity
+  ], [triggerEverything, switchToUI, showResume]);
 
   const componentsToSpin = useMemo(() => [
     <Y2KResume personalInfo={andyPersonalInfo} />, // 4/5
@@ -53,8 +104,12 @@ const App = () => {
   return (
     // Main container is now relative and takes the full screen
     <div className="relative h-screen w-screen bg-gray-900">
-      {rouletteKey === 0 ? (
-        <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} />
+      {showUI ? (
+        stillComponents[PREFERRED_UI_INDEX]
+      ) : directIndex !== null ? (
+        componentsToSpin[directIndex]
+      ) : rouletteKey === 0 ? (
+        <CliResume personalInfo={andyPersonalInfo} onEverything={triggerEverything} onSwitchToUI={switchToUI} onShowResume={showResume} resumeNames={RESUME_NAMES} />
       ) : (
         <ComponentRoulette
           key={rouletteKey}

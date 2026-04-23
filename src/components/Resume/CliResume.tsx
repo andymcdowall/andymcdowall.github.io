@@ -52,18 +52,28 @@ const InputLine = ({
 
 // --- THE MAIN TERMINAL COMPONENT ---
 
-const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, onEverything?: () => void}) => {
+const Terminal = ({ personalInfo, onEverything, onSwitchToUI, onShowResume, resumeNames = [] } : {personalInfo: PersonalInfo, onEverything?: () => void, onSwitchToUI?: () => void, onShowResume?: (n: number) => void, resumeNames?: string[]}) => {
+  const [isWide, setIsWide] = useState(() => window.innerWidth >= 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsWide(window.innerWidth >= 640);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // --- STATE MANAGEMENT ---
   const [input, setInput] = useState("");
   const [history, setHistory] = useState([]);
   const [commandHistory, setCommandHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [debugMode, setDebugMode] = useState(() => sessionStorage.getItem('cli_debug') === '1');
 
   // --- REFS for DOM manipulation ---
   const inputRef = useRef(null);
   const terminalEndRef = useRef(null);
 
   // --- CONSTANTS ---
+  // "debug" and "resume" are intentionally omitted until debug mode is active.
   const commands = [
     "help",
     "about",
@@ -76,6 +86,8 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     "awards",
     "all",
     "clear",
+    "ui",
+    ...(debugMode ? ["resume"] : []),
     "everything",
   ];
 
@@ -134,14 +146,26 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     },
   };
 
+  const cmdSpan = (cmd: string) =>
+    `<span data-command="${cmd}" class="text-cyan-300 cursor-pointer hover:underline">${cmd}</span>`;
+
+  const debugCmdSpan = (cmd: string) =>
+    `<span data-command="${cmd}" class="text-orange-400 cursor-pointer hover:underline">${cmd}</span>`;
+
   // --- COMMAND HANDLING ---
   const getCommandOutput = (command) => {
     const [cmd, ...args] = command.toLowerCase().split(" ");
     switch (cmd) {
-      case "help":
-        return `Available commands:\n\n${commands.slice(0, -1).join("\n")}\neverything         # flash warning`;
+      case "help": {
+        const debugCmds = new Set(["resume"]);
+        return (
+          `Available commands:\n\n` +
+          commands.slice(0, -1).map(c => debugCmds.has(c) ? debugCmdSpan(c) : cmdSpan(c)).join("\n") +
+          `\n${cmdSpan("everything")}         # flash warning`
+        );
+      }
       case "about": {
-        const ascii = [
+        const asciiWide = [
           "                     _         __  __      _____                     _ _ ",
           "     /\\             | |       |  \\/  |    |  __ \\                   | | |",
           "    /  \\   _ __   __| |_   _  | \\  / | ___| |  | | _____      ____ _| | |",
@@ -151,7 +175,15 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
           "                        __/ |                                            ",
           "                       |___/                                             ",
         ].join("\n");
-        return `${ascii}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type 'help' to see all available commands.\n`;
+        const asciiNarrow = [
+          "  _    __  __ ",
+          " /_\\  |  \\/  |",
+          "/ _ \\ | |\\/| |",
+          "/_/ \\_\\|_|  |_|",
+          "Andy McDowall",
+        ].join("\n");
+        const ascii = isWide ? asciiWide : asciiNarrow;
+        return `${ascii}\nLocation: ${personalInfo.location}\n\nWelcome to my interactive resume. Type '${cmdSpan("help")}' to see all available commands.\n`;
       }
       case "skills":
         return `\n<span class="text-white">=== Skills ===</span>\n\n${personalInfo.skills
@@ -193,32 +225,111 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
       case "clear":
         setHistory([]);
         return "";
+      case "ui":
+        onSwitchToUI?.();
+        return "Switching to UI resume...";
+      case "debug":
+        sessionStorage.setItem('cli_debug', '1');
+        setDebugMode(true);
+        return `Debug mode enabled.\n<span class="text-gray-500">Use ${cmdSpan("help")} to see new commands. Congrats on leaving the Matrix!</span>`;
+      case "resume": {
+        if (!debugMode) break;
+        if (args[0] === "--help") {
+          return `usage:\n  resume list          list all available resumes\n  resume show &lt;n&gt;     jump directly to resume by index\n  resume --help        show this help`;
+        }
+        if (args[0] === "list") {
+          if (resumeNames.length === 0) return "No resumes available.";
+          const rows = resumeNames.map((name, i) => {
+            const showCmd = `resume show ${i}`;
+            return `  ${String(i).padEnd(3)} <span data-command="${showCmd}" class="text-cyan-300 cursor-pointer hover:underline">${name}</span>`;
+          });
+          return `\n<span class="text-white">=== Resume List ===</span>\n\n${rows.join("\n")}\n`;
+        }
+        if (args[0] === "show") {
+          const n = parseInt(args[1], 10);
+          if (!isNaN(n) && n >= 0 && n < resumeNames.length) {
+            onShowResume?.(n);
+            return `Loading resume ${n} (${resumeNames[n]})...`;
+          }
+          return `invalid index. Use ${cmdSpan("resume list")} to see available resumes.`;
+        }
+        return `usage:\n  resume list          list all available resumes\n  resume show &lt;n&gt;     jump directly to resume by index\n  resume --help        show this help`;
+      }
+      case "cursor": {
+        const congrats = [
+          "  ____                            _       ",
+          " / ___|___  _ __   __ _ _ __ __ _| |_ ___ ",
+          "| |   / _ \\| '_ \\ / _` | '__/ _` | __/ __|",
+          "| |__| (_) | | | | (_| | | | (_| | |_\\__ \\",
+          " \\____\\___/|_| |_|\\__, |_|  \\__,_|\\__|___/",
+          "                  |___/                   ",
+        ].join("\n");
+        const cursorBanner = [
+          "  ____                             _ ",
+          " / ___|   _ _ __ ___  ___  _ __   | |",
+          "| |  | | | | '__/ __|/ _ \\| '__|  | |",
+          "| |__| |_| | |  \\__ \\ (_) | |     |_|",
+          " \\____\\__,_|_|  |___/\\___/|_|     (_)",
+        ].join("\n");
+        const rocket = [
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⣀⣀⣠⠤⠴⠶⠶⠒⠒⠒⠒⠒⠲⣶",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⢴⢾⣿⣟⣷⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠴⠛⣍⣴⠼⣿⣻⠟⣿⣟⢭⡷⣤⡀⠀⠀⠀⠀⠀⠀⠀⡇",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⠞⠋⣰⡴⢿⣿⣖⠛⠉⠉⠉⠛⢮⠛⢿⣷⣿⣦⠀⠀⠀⠀⠀⢰⠃",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠉⢀⣴⣞⠏⣡⣿⣮⣿⣷⣦⠀⠀⠀⠈⣇⠈⣿⡟⢿⣳⡄⠀⠀⠀⡼⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠁⢀⣾⠿⢿⣷⡋⣗⣴⣿⠿⠋⠻⣷⡅⠀⢰⠃⣰⡿⠁⠀⢷⡟⡆⠀⢀⡇⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠉⠛⠷⣾⣍⠀⢿⡿⠃⠀⠀⠀⠘⣿⣶⣣⣴⠋⠀⠀⠀⠀⠹⡽⡆⡾⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⣟⣷⣲⢦⣄⡀⠀⠀⠈⠙⢷⣌⠓⠦⠤⠤⠴⠚⢉⣲⠟⠁⠀⠀⠀⠀⠀⠀⢷⡿⠁⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⠴⠒⠒⠒⢻⡟⠁⠀⠀⠉⠙⠺⣵⣫⡷⣄⠀⠀⠀⠙⢲⣤⠀⠀⢀⣶⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⣸⠃⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠞⠉⠀⠀⠀⠀⠀⣰⣛⡲⠶⢤⣀⠀⠀⠀⢀⣭⣿⣽⢷⣄⠀⠀⠀⠈⢿⡼⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠁⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⢀⡾⢁⠟⣹⠛⠲⣄⣙⣶⣞⡽⠋⠀⠈⠻⣼⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡞⠁⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⣠⠏⣰⢋⡾⣱⢏⣴⡿⠋⣷⣟⠳⣄⠀⠀⠀⠈⠳⣜⢳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⢠⠞⠁⠀⠀⢀⣠⠤⠴⠒⢲⠟⠒⠦⢬⣘⢁⡼⠋⢠⣞⡽⢉⡦⣌⠳⡄⠀⠀⠀⠘⢧⠝⢦⠀⠀⠀⠀⠀⠀⠀⢀⡼⠃⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⢀⡴⠁⠀⠀⣠⠖⠉⠀⠀⠀⢠⣯⣤⣀⠀⢀⡼⠋⠀⡰⠋⢚⡴⢫⡞⢉⢢⡈⢦⡀⠀⠀⠀⢫⣭⢧⠀⠀⠀⠀⠀⣠⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⣰⠟⠀⠀⢀⠾⠁⠀⠀⠀⠀⠀⡏⠀⠀⠈⣹⠏⣀⡴⠚⠙⢶⣈⠕⢉⡴⢁⡔⠙⢦⠱⣄⠀⠀⠀⣷⠞⢇⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠛⠛⠛⠒⠋⠀⠀⣀⣠⣤⠄⠒⠛⠒⢺⡟⣑⢾⡉⠳⣄⠀⠀⠙⢦⠉⠐⠋⡠⠊⡈⢧⡙⣆⣀⠼⢻⡏⣿⣀⡜⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⢰⠋⠈⠉⣛⡢⢤⡰⢋⡴⠋⠀⠉⢣⡈⠳⣄⠀⠀⠱⡄⠈⡠⠞⣡⢖⣷⠞⠁⠀⢸⣷⡟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠸⣤⠴⠚⠉⢠⡞⣱⠿⡅⠀⠀⠀⠀⠙⢆⠈⢳⡀⠀⠙⣄⠐⢚⡵⠛⠁⠀⠀⠀⣸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⢀⡴⠊⠁⠀⠀⢀⣠⡝⠁⠀⠈⠲⡀⠀⠀⠀⠈⢳⡀⠹⡄⠀⠸⡞⠋⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⣠⣞⣅⡀⠀⡠⠞⠉⠀⠀⠀⠀⠀⠀⠙⣦⠀⠀⠀⠀⣷⠀⠹⡄⠀⡇⠀⠀⠀⠀⠀⠀⢠⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⡼⠟⣥⣤⠝⠛⠛⢻⠂⠀⠀⠀⠀⢱⠀⠀⠀⢳⡄⠀⢰⠋⠀⠀⣇⡤⡗⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⣠⡴⠛⠁⠀⣀⡤⠟⠀⠀⠀⠀⢀⡿⠀⠀⠀⠀⣹⡀⡘⠉⠓⠋⠉⠀⡇⠀⠀⠀⠀⠀⢀⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⢀⡾⠋⠀⠀⠀⠘⣿⠛⠀⠀⠀⠀⢠⡿⠁⠀⠀⠀⣰⠋⢧⡇⠀⠀⠀⠀⣠⠃⠀⠀⠀⠀⢠⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⢠⣾⢾⡇⠀⠀⠀⣸⠁⣀⠀⠾⣽⡶⠋⠀⠀⠀⢀⣴⡃⢀⣸⠃⠀⠀⢀⡴⠋⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠸⣳⠋⠀⠀⠀⠀⣷⢎⡁⢀⠀⢹⣄⡴⣦⢀⡤⠞⠁⠉⠉⠀⠀⣀⡴⠋⠀⠀⠀⣀⠴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⢰⠇⠀⠀⠀⣀⣠⢴⡿⢁⡾⣇⡼⠿⠗⠛⠁⠀⠀⠀⠀⠀⠀⢾⠉⠀⠀⢀⣤⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⡎⢀⡤⠒⠋⠻⠶⠯⠕⠊⠙⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⢀⣠⠖⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⣷⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠟⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠘⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+          "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",
+        ].join("\n");
+        return `${congrats}\n${cursorBanner}\n\n${rocket}`;
+      }
       case "everything":
         onEverything?.();
         return "Initiating everything, everywhere, all at once...\n⚠ Flash warning: contains flashing effects.";
       default:
-        return `command not found: ${command}\nType 'help' for a list of available commands.`;
+        return `command not found: ${command}\nType '${cmdSpan("help")}' for a list of available commands.`;
     }
   };
 
-  const handleCommand = () => {
-    if (!input.trim()) return;
-
-    const output = getCommandOutput(input);
-    const newHistory = [...history, { command: input, output }];
+  const executeCommand = (cmd: string) => {
+    if (!cmd.trim()) return;
+    const output = getCommandOutput(cmd);
     if (output) {
-      // Only add to history if there is an output
-      setHistory(newHistory);
-    } else if (input.toLowerCase() === "clear") {
-      setHistory([]); // Handle clear command
+      setHistory((prev) => [...prev, { command: cmd, output }]);
+    } else if (cmd.toLowerCase() === "clear") {
+      setHistory([]);
     }
+    if (!commandHistory.includes(cmd)) {
+      setCommandHistory((prev) => [cmd, ...prev]);
+    }
+    setHistoryIndex(-1);
+  };
 
-    // Add unique commands to command history for arrow navigation
-    if (!commandHistory.includes(input)) {
-      setCommandHistory([input, ...commandHistory]);
-    }
-    setHistoryIndex(-1); // Reset history navigation
-    setInput(""); // Clear input
+  const handleCommand = () => {
+    executeCommand(input);
+    setInput("");
   };
 
   // --- KEYBOARD EVENT HANDLING ---
@@ -267,10 +378,29 @@ const Terminal = ({ personalInfo, onEverything } : {personalInfo: PersonalInfo, 
     ]);
   }, [personalInfo.name]);
 
+  // Refresh welcome art when screen crosses the wide/narrow breakpoint,
+  // but only if the user hasn't typed any commands yet.
+  useEffect(() => {
+    setHistory((prev) => {
+      if (prev.length === 1 && prev[0].command === "") {
+        return [{ command: "", output: getCommandOutput("about") }];
+      }
+      return prev;
+    });
+  }, [isWide]);
+
   return (
     <div
       className="bg-gray-900 text-green-400 font-mono p-4 rounded-lg shadow-xl h-[95vh] w-full max-w-5xl mx-auto overflow-y-auto"
-      onClick={() => inputRef.current?.focus()}
+      onClick={(e) => {
+        const cmd = (e.target as HTMLElement).dataset.command;
+        if (cmd) {
+          executeCommand(cmd);
+          scrollToBottom();
+        } else {
+          inputRef.current?.focus();
+        }
+      }}
     >
       <div className="flex flex-col">
         {history.map((entry, index) => (

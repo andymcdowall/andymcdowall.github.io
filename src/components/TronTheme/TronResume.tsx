@@ -168,10 +168,10 @@ const TronResume: React.FC<{ personalInfo: PersonalInfo }> = ({
               <button
                 key={id}
                 onClick={() => setActiveSection(id)}
-                className={`px-6 py-2 rounded-full font-mono text-sm transition-all duration-300 flex items-center gap-2 hover:scale-105 group ${
+                className={`appearance-none px-6 py-2 rounded-full font-mono text-sm transition-all duration-300 flex items-center gap-2 hover:scale-105 group ${
                   activeSection === id
-                    ? "bg-cyan-400 text-white-300 shadow-lg shadow-cyan-400/50 hover:bg-cyan-300"
-                    : "text-cyan-300 hover:text-cyan-200 hover:bg-cyan-400/20 hover:shadow-cyan-400/30"
+                    ? "bg-cyan-400 text-black shadow-lg shadow-cyan-400/50 hover:bg-cyan-300"
+                    : "bg-transparent text-cyan-300 hover:text-cyan-200 hover:bg-cyan-400/20 hover:shadow-cyan-400/30"
                 }`}
               >
                 <Icon className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
