@@ -11,7 +11,7 @@ export const andyPersonalInfo: PersonalInfo = {
       company: "Paycom",
       position: "Software Developer",
       startDate: new Date("2024-07-01"),
-      endDate: new Date("2025-07-01"),
+      endDate: new Date("2026-02-06"),
       current: false,
       location: "Irving, TX",
       descriptionBulletPoints: [
