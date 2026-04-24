@@ -15,8 +15,8 @@ export const andyPersonalInfo: PersonalInfo = {
       current: false,
       location: "Irving, TX",
       descriptionBulletPoints: [
-        "Developed full-stack customized HCM solutions, collaborating with cross-functional teams to deliver client-spcific reports and integrate with third party systems.",
-        "Managed multiple conceurrent development projects while maintaining clear communication with clients, vendors, and internal stakeholders to ensure the spirit, as well as the letter, of the requirements were met.",
+        "Developed full-stack customized HCM solutions, collaborating with cross-functional teams to deliver client-specific reports and integrate with third party systems.",
+        "Managed multiple concurrent development projects while maintaining clear communication with clients, vendors, and internal stakeholders to ensure the spirit, as well as the letter, of the requirements were met.",
         "Led development of integrations connecting client systems with third-party vendors, ensuring data accuracy and maintaining clear documentation throughout project lifecycle.",
       ],
       technologies: ["C#", ".NET", "PHP", "MySQL", "React", "RabbitMQ"],
